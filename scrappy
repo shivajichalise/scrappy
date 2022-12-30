@@ -1,0 +1,57 @@
+#!/bin/bash
+#aurthor:suraj
+#date:Thu29Dec17:28:42
+#description:simple webscrap tool for tag id and class
+
+#matching respective argument from the user
+url=$1;
+tag=$2;
+attribute=$3
+
+
+#argument=$?
+#setting location for the cache
+
+
+#distinguishing attrribute(class or id)
+function Scrap(){
+    if [[ ${attribute::1} == "." ]]; then
+    class=${attribute:1}
+    scrapClass 
+    elif [[ ${attribute::1} == "#" ]];
+    then 
+    id=${attribute:1}
+    scrapId  
+    else
+    echo "invalid format for atttribute"
+    fi
+}
+#set Webbage
+ 
+mkdir -p $HOME/.cache/Scrap
+# touch $/.cache/Scrap/temp.html
+cacheDir=$HOME/.cache/Scrap
+curl "$url" >$cacheDir/content.html
+content_file=$cacheDir/content.html
+temp_file=$cacheDir/temp.html
+cat $content_file
+
+#for scrapping the class
+function scrapClass(){
+   local pattern="<$tag.*class=\"$class\".*</$tag>"   
+   grep -o "$pattern" $content_file > $temp_file
+    cat $temp_file
+}
+# for scrappping the id
+function scrapId(){
+   local pattern="<$tag.*id=\"$id\".*</$tag>"
+   grep -o "$pattern" $content_file > $temp_file
+
+#    grep -o "$pattern" $content_file > $temp_file
+   cat $temp_file
+} 
+# rm $cacheDir
+Scrap 
+ 
+
+ #"$pattern" 
