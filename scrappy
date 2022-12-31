@@ -4,54 +4,78 @@
 #description:simple webscrap tool for tag id and class
 
 #matching respective argument from the user
-url=$1;
-tag=$2;
-attribute=$3
+totalArgs=$#
+if [ $totalArgs -eq 0 ]; then
+   echo "Error:url not found"
+   exit
+fi
+url=$1
 
-
-#argument=$?
-#setting location for the cache
-
-
-#distinguishing attrribute(class or id)
-function Scrap(){
-    if [[ ${attribute::1} == "." ]]; then
-    class=${attribute:1}
-    scrapClass 
-    elif [[ ${attribute::1} == "#" ]];
-    then 
-    id=${attribute:1}
-    scrapId  
-    else
-    echo "invalid format for atttribute"
-    fi
+#checking for tag class and id
+handleArgument(){
+   for attribute in "${attributes[@]}";
+   do
+       if [[ ${attribute::1} == "." ]]; then
+         class=${attribute:1}
+       elif [[ ${attribute::1} == "#" ]];then 
+         id=${attribute:1}
+       elif [[ ${attribute::1} == "<" ]];then
+         tag=${attribute:1:-1}
+       fi
+   done
 }
-#set Webbage
- 
+if [ $totalArgs -gt 1 ]; then
+    attributes=("${@:2:totalArgs}")
+    handleArgument
+fi
+
+#file for cache storage
 mkdir -p $HOME/.cache/Scrap
-# touch $/.cache/Scrap/temp.html
 cacheDir=$HOME/.cache/Scrap
-curl "$url" >$cacheDir/content.html
-content_file=$cacheDir/content.html
-temp_file=$cacheDir/temp.html
+curl -s "$url" >$cacheDir/temp.html
+content_file=$cacheDir/temp.html
+
+#defining grep pattern
+pattern_tag="<$tag.*>.*</$tag>"
+pattern_class="<.*class=\"$class\".*>.*<.*>"
+pattern_id="<.*id=\"$id\".*>.*<.*>"
+
+#handling 7 posssible combination of input
+if [ -v tag ]; then
+   echo tag:$tag
+   echo "$( grep -o "$pattern_tag" $content_file )"> $content_file
+   
+   if [ -v class ]; then
+      echo class:$class
+      echo "$( grep -o "$pattern_class" $content_file )"> $content_file
+   fi
+
+   if [ -v id ]; then
+      echo id:$id
+      echo "$( grep -o "$pattern_id" $content_file )"> $content_file
+   fi
+
+elif [ -v class ]; then
+   echo class:$class
+   echo "$( grep -o "$pattern_class" $content_file )"> $content_file
+   
+   if [ -v id ]; then
+      echo id:$id
+      echo "$( grep -o "$pattern_id" $content_file )"> $content_file
+   fi 
+
+elif [ -v id ]; then
+   echo id:$id
+   echo "$( grep -o "$pattern_id" $content_file )"> $content_file
+
+else
+   echo "Error:invalid options"
+   exit
+fi
+ 
+#printing result
 cat $content_file
 
-#for scrapping the class
-function scrapClass(){
-   local pattern="<$tag.*class=\"$class\".*</$tag>"   
-   grep -o "$pattern" $content_file > $temp_file
-    cat $temp_file
-}
-# for scrappping the id
-function scrapId(){
-   local pattern="<$tag.*id=\"$id\".*</$tag>"
-   grep -o "$pattern" $content_file > $temp_file
-
-#    grep -o "$pattern" $content_file > $temp_file
-   cat $temp_file
-} 
-# rm $cacheDir
-Scrap 
  
 
- #"$pattern" 
+ 
