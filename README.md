@@ -1,7 +1,7 @@
 **Simple web-scraping tool**
 
 ```
-scrappy  [url] [any combination of <tag> "#<id>" ".<classname>]"
+scrappy  [url] [any combination of <tag> "#<id>" ".<classname>"]
 ```
 
 **CMD:**
